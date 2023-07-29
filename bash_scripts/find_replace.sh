@@ -43,6 +43,12 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
+echo "Enter the string to search for in pom.xml:"
+read search_string
+
+echo "Enter the string to replace it with:"
+read replace_string
+
 for repo in "$@"; do
   # Clone the repo
   git clone "$repo"
@@ -56,13 +62,6 @@ for repo in "$@"; do
   # Check if it's a Maven project
   if is_maven_project; then
     echo "Maven project found: $repo_name"
-
-    # Ask the user for search and replace strings
-    echo "Enter the string to search for in pom.xml:"
-    read search_string
-
-    echo "Enter the string to replace it with:"
-    read replace_string
 
     # Perform search and replace in pom.xml
     replace_string_in_pom "$search_string" "$replace_string"
