@@ -2,7 +2,7 @@
 
 # Function to check if a directory is a Maven project
 is_maven_project() {
-  if [ -f pom.xml ]; then
+  if [ -f "pom.xml" ]; then
     return 0
   else
     return 1
@@ -11,7 +11,7 @@ is_maven_project() {
 
 # Function to check if a directory is a Gradle project
 is_gradle_project() {
-  if [ -f build.gradle ]; then
+  if [ -f "build.gradle" ]; then
     return 0
   else
     return 1
@@ -22,7 +22,7 @@ is_gradle_project() {
 replace_string_in_pom() {
   search_string=$1
   replace_string=$2
-  sed -i "s/$search_string/$replace_string/g" pom.xml
+  sed -i "s/$search_string/$replace_string/g" "pom.xml"
 }
 
 # Function to create a branch, commit changes, and push
@@ -39,17 +39,22 @@ create_branch_commit_push() {
 # Main script starts here
 
 if [ $# -eq 0 ]; then
-  echo "Usage: $0 <repo1> <repo2> ..."
+  echo "Usage: $0 <repo> or $0 -csv <path_to_csv>"
   exit 1
 fi
 
-echo "Enter the string to search for in pom.xml:"
-read search_string
+if [ "$1" = "-csv" ]; then
+  csv_path=$2
+  IFS=$'\n' read -d '' -r -a repos < "$csv_path"
+else
+  repos=("$@")
+fi
 
-echo "Enter the string to replace it with:"
-read replace_string
+read -p "Enter the string to search for in pom.xml: " search_string
 
-for repo in "$@"; do
+read -p "Enter the string to replace it with: " replace_string
+
+for repo in "${repos[@]}"; do
   # Clone the repo
   git clone "$repo"
 
@@ -57,7 +62,7 @@ for repo in "$@"; do
   repo_name=$(basename "$repo" .git)
 
   # Move into the repo directory
-  cd "$repo_name"
+  cd "$repo_name" || continue
 
   # Check if it's a Maven project
   if is_maven_project; then
